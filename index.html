@@ -104,12 +104,12 @@
         <input type="number" id="capitalInput">
         <button onclick="addCapital()">Add Capital</button>
 
-        <label for="loanInput">Enter Loan Amount:</label>
-        <input type="number" id="loanInput">
-        <button onclick="addLoan()">Add Loan</button>
+        <label for="interestInput">Enter Interest Amount:</label>
+        <input type="number" id="interestInput">
+        <button onclick="addInterest()">Add Interest</button>
 
         <h2>Total Capital: <span id="totalCapital">0</span></h2>
-        <h2>Total Loan: <span id="totalLoan">0</span></h2>
+        <h2>Total Interest: <span id="totalInterest">0</span></h2>
         
         <h2>Result: <span id="result">0</span></h2>
 
@@ -120,7 +120,7 @@
 
     <script>
         let totalCapital = 0;
-        let totalLoan = 0;
+        let totalInterest = 0;
         let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
         let transactionsToShow = 5;
         let loadMoreIncrement = 5;
@@ -155,31 +155,31 @@
             }
         }
 
-        function addLoan() {
-            const loanInput = document.getElementById('loanInput');
-            const loanAmount = parseFloat(loanInput.value);
+        function addInterest() {
+            const interestInput = document.getElementById('interestInput');
+            const interestAmount = parseFloat(interestInput.value);
 
-            if (!isNaN(loanAmount) && loanAmount > 0) {
-                totalLoan += loanAmount;
-                document.getElementById('totalLoan').innerText = totalLoan;
+            if (!isNaN(interestAmount) && interestAmount > 0) {
+                totalInterest += interestAmount;
+                document.getElementById('totalInterest').innerText = totalInterest;
 
                 transactions.push({
-                    type: 'Loan',
-                    amount: loanAmount
+                    type: 'Interest',
+                    amount: interestAmount
                 });
 
                 updateTransactionHistory();
-                loanInput.value = '';
+                interestInput.value = '';
                 updateResult();
                 saveTransactionsToStorage();
                 scrollTransactionHistory();
             } else {
-                alert('Invalid loan amount. Please enter a valid number.');
+                alert('Invalid interest amount. Please enter a valid number.');
             }
         }
 
         function updateResult() {
-            const result = totalCapital - totalLoan;
+            const result = totalCapital - totalInterest;
             document.getElementById('result').innerText = result;
         }
 
@@ -202,8 +202,8 @@
                 totalCapital -= deletedTransaction.amount;
                 document.getElementById('totalCapital').innerText = totalCapital;
             } else {
-                totalLoan -= deletedTransaction.amount;
-                document.getElementById('totalLoan').innerText = totalLoan;
+                totalInterest -= deletedTransaction.amount;
+                document.getElementById('totalInterest').innerText = totalInterest;
             }
 
             updateResult();
