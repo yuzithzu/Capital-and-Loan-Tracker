@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capital and Loan Tracker</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input, button {
+            padding: 8px;
+            width: calc(100% - 20px);
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        span {
+            font-weight: bold;
+            color: #4caf50;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+
+        li {
+            margin-bottom: 8px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+        }
+
+        button.loadMore {
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button.loadMore:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <h1>Capital and Loan Tracker</h1>
+
+        <label for="capitalInput">Enter Capital Amount:</label>
+        <input type="number" id="capitalInput">
+        <button onclick="addCapital()">Add Capital</button>
+
+        <label for="loanInput">Enter Loan Amount:</label>
+        <input type="number" id="loanInput">
+        <button onclick="addLoan()">Add Loan</button>
+
+        <h2>Total Capital: <span id="totalCapital">0</span></h2>
+        <h2>Total Loan: <span id="totalLoan">0</span></h2>
+        
+        <h2>Result: <span id="result">0</span></h2>
+
+        <h2>Transaction History:</h2>
+        <ul id="transactionHistory"></ul>
+        <button class="loadMore" onclick="loadMoreTransactions()">Load More</button>
+    </div>
+
+    <script>
+        let totalCapital = 0;
+        let totalLoan = 0;
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        let transactionsToShow = 5;
+        let loadMoreIncrement = 5;
+
+        window.onload = function () {
+            // Load stored transactions on page load
+            updateResult();
+            updateTransactionHistory();
+        };
+
+        function addCapital() {
+            const capitalInput = document.getElementById('capitalInput');
+            const capitalAmount = parseFloat(capitalInput.value);
+
+            if (!isNaN(capitalAmount) && capitalAmount > 0) {
+                totalCapital += capitalAmount;
+                document.getElementById('totalCapital').innerText = totalCapital;
+
+                transactions.push({
+                    type: 'Capital',
+                    amount: capitalAmount
+                });
+
+                updateTransactionHistory();
+                
+                capitalInput.value = '';
+                updateResult();
+                saveTransactionsToStorage();
+                scrollTransactionHistory();
+            } else {
+                alert('Invalid capital amount. Please enter a valid number.');
+            }
+        }
+
+        function addLoan() {
+            const loanInput = document.getElementById('loanInput');
+            const loanAmount = parseFloat(loanInput.value);
+
+            if (!isNaN(loanAmount) && loanAmount > 0) {
+                totalLoan += loanAmount;
+                document.getElementById('totalLoan').innerText = totalLoan;
+
+                transactions.push({
+                    type: 'Loan',
+                    amount: loanAmount
+                });
+
+                updateTransactionHistory();
+                loanInput.value = '';
+                updateResult();
+                saveTransactionsToStorage();
+                scrollTransactionHistory();
+            } else {
+                alert('Invalid loan amount. Please enter a valid number.');
+            }
+        }
+
+        function updateResult() {
+            const result = totalCapital - totalLoan;
+            document.getElementById('result').innerText = result;
+        }
+
+        function updateTransactionHistory() {
+            const historyList = document.getElementById('transactionHistory');
+            historyList.innerHTML = '';
+
+            transactions.slice(0, transactionsToShow).forEach((transaction, index) => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `${transaction.type}: ${transaction.amount} 
+                                     <button onclick="deleteTransaction(${index})">Delete</button>`;
+                historyList.appendChild(listItem);
+            });
+        }
+
+        function deleteTransaction(index) {
+            const deletedTransaction = transactions.splice(index, 1)[0];
+
+            if (deletedTransaction.type === 'Capital') {
+                totalCapital -= deletedTransaction.amount;
+                document.getElementById('totalCapital').innerText = totalCapital;
+            } else {
+                totalLoan -= deletedTransaction.amount;
+                document.getElementById('totalLoan').innerText = totalLoan;
+            }
+
+            updateResult();
+            updateTransactionHistory();
+            saveTransactionsToStorage();
+            scrollTransactionHistory();
+        }
+
+        function loadMoreTransactions() {
+            transactionsToShow += loadMoreIncrement;
+            updateTransactionHistory();
+            scrollTransactionHistory();
+        }
+
+        function saveTransactionsToStorage() {
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+        }
+
+        function scrollTransactionHistory() {
+            const historyList = document.getElementById('transactionHistory');
+            historyList.scrollTop = historyList.scrollHeight;
+        }
+    </script>
+
+</body>
+</html>
