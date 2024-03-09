@@ -119,8 +119,8 @@
     </div>
 
     <script>
-        let totalCapital = 0;
-        let totalInterest = 0;
+        let totalCapital = parseFloat(localStorage.getItem('totalCapital')) || 0;
+        let totalInterest = parseFloat(localStorage.getItem('totalInterest')) || 0;
         let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
         let transactionsToShow = 5;
         let loadMoreIncrement = 5;
@@ -148,7 +148,7 @@
                 
                 capitalInput.value = '';
                 updateResult();
-                saveTransactionsToStorage();
+                saveDataToStorage();
                 scrollTransactionHistory();
             } else {
                 alert('Invalid capital amount. Please enter a valid number.');
@@ -171,7 +171,7 @@
                 updateTransactionHistory();
                 interestInput.value = '';
                 updateResult();
-                saveTransactionsToStorage();
+                saveDataToStorage();
                 scrollTransactionHistory();
             } else {
                 alert('Invalid interest amount. Please enter a valid number.');
@@ -208,7 +208,7 @@
 
             updateResult();
             updateTransactionHistory();
-            saveTransactionsToStorage();
+            saveDataToStorage();
             scrollTransactionHistory();
         }
 
@@ -218,7 +218,9 @@
             scrollTransactionHistory();
         }
 
-        function saveTransactionsToStorage() {
+        function saveDataToStorage() {
+            localStorage.setItem('totalCapital', totalCapital);
+            localStorage.setItem('totalInterest', totalInterest);
             localStorage.setItem('transactions', JSON.stringify(transactions));
         }
 
